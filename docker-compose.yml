@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  rhcp-rag:
+    build: .
+    container_name: rhcp-rag
+    ports:
+      - "5000:5000"
+
+    volumes:
+      - ./vector_store:/app/vector_store
+      - ./data:/app/data
+
+    env_file:
+      - .env
+
+    restart: unless-stopped

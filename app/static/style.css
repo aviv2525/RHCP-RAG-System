@@ -1,0 +1,230 @@
+/* =============================================
+   Base & Reset
+   ============================================= */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(160deg, #0d0000 0%, #1a0000 50%, #111 100%);
+    min-height: 100vh;
+    color: #e8e8e8;
+}
+
+/* =============================================
+   Layout
+   ============================================= */
+.container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+}
+
+/* =============================================
+   Hero
+   ============================================= */
+.hero {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.hero-logo {
+    font-size: 52px;
+    line-height: 1;
+    margin-bottom: 12px;
+}
+
+.hero h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #ff2b2b;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+}
+
+.hero-sub {
+    color: #aaa;
+    font-size: 1rem;
+}
+
+/* =============================================
+   Input area
+   ============================================= */
+.chat-box {
+    background: #1e1e1e;
+    border: 1px solid #2e2e2e;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(255, 30, 30, 0.08);
+}
+
+textarea {
+    width: 100%;
+    background: #141414;
+    color: #eee;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 15px;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+
+textarea:focus {
+    border-color: #cc0000;
+}
+
+button {
+    margin-top: 14px;
+    width: 100%;
+    padding: 14px;
+    background: #cc0000;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.3px;
+}
+
+button:hover:not(:disabled) {
+    background: #e60000;
+}
+
+button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+button:disabled {
+    background: #5a0000;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* =============================================
+   Loading indicator
+   ============================================= */
+.loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    color: #ff5555;
+    font-size: 14px;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #3a0000;
+    border-top-color: #ff2b2b;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* =============================================
+   Error card
+   ============================================= */
+.error-card {
+    margin-top: 20px;
+    background: #2a0000;
+    border: 1px solid #660000;
+    border-radius: 12px;
+    padding: 16px 20px;
+    color: #ff8080;
+    font-size: 14px;
+}
+
+/* =============================================
+   Answer card
+   ============================================= */
+.answer-card {
+    margin-top: 24px;
+    background: #1e1e1e;
+    border: 1px solid #2e2e2e;
+    border-radius: 16px;
+    padding: 22px 24px;
+    animation: fadeIn 0.3s ease;
+}
+
+.answer-card h2 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #ff2b2b;
+    margin-bottom: 12px;
+}
+
+#answerText {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #ddd;
+    white-space: pre-wrap;
+}
+
+/* =============================================
+   Sources card
+   ============================================= */
+.sources-card {
+    margin-top: 20px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 22px 24px;
+    animation: fadeIn 0.3s ease;
+}
+
+.sources-card h2 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #888;
+    margin-bottom: 6px;
+}
+
+.sources-note {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 16px;
+}
+
+.source-chunk {
+    background: #111;
+    border-left: 3px solid #cc0000;
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: #aaa;
+    line-height: 1.6;
+}
+
+.source-chunk:last-child {
+    margin-bottom: 0;
+}
+
+/* =============================================
+   Utility
+   ============================================= */
+.hidden {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

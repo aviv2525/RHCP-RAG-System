@@ -1,0 +1,7 @@
+flask
+faiss-cpu
+google-genai
+huggingface_hub
+numpy
+python-dotenv
+nltk

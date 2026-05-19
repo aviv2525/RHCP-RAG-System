@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RHCP RAG Assistant</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+    <main class="container">
+
+        <header class="hero">
+            <div class="hero-logo">🌶️</div>
+            <h1>RHCP Knowledge Assistant</h1>
+            <p class="hero-sub">Ask anything about the Red Hot Chili Peppers — history, albums, members, songs.</p>
+        </header>
+
+        <section class="chat-box">
+            <textarea
+                id="questionInput"
+                placeholder="e.g. When was Blood Sugar Sex Magik released?"
+                rows="3"
+            ></textarea>
+            <button id="askBtn" onclick="askQuestion()">Ask</button>
+        </section>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <span>Searching knowledge base…</span>
+        </div>
+
+        <div id="errorCard" class="error-card hidden">
+            <span id="errorText"></span>
+        </div>
+
+        <section id="answerCard" class="answer-card hidden">
+            <h2>Answer</h2>
+            <p id="answerText"></p>
+        </section>
+
+        <section id="sourcesCard" class="sources-card hidden">
+            <h2>Retrieved Sources</h2>
+            <p class="sources-note">These are the knowledge-base excerpts used to generate the answer.</p>
+            <div id="sourcesList"></div>
+        </section>
+
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
