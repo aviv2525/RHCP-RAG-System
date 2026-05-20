@@ -3,6 +3,7 @@
 A Retrieval-Augmented Generation (RAG) web application for answering questions about the **Red Hot Chili Peppers**, built with Flask, FAISS, Hugging Face embeddings, and Google Gemini.
 
 ---
+![alt text](image.png)
 
 ## Architecture
 
@@ -101,56 +102,11 @@ The index is built automatically on first run. Subsequent runs load the saved FA
 
 ## Example Queries & Outputs
 
-### 1 — Accurate Retrieval
-**Q:** *What album is 'By the Way' from, and how did it perform on the charts?*
+![alt text](5-questions.png)
 
-**A:** "By the Way" is the title track from the Red Hot Chili Peppers' eighth studio album. The single led the US Alternative Rock charts for 14 weeks and reached the top 10 in several countries, including #1 in Italy and #2 in the UK.
-
----
-
-### 2 — Accurate Retrieval
-**Q:** *What is the song 'Under the Bridge' about?*
-
-**A:** "Under the Bridge" is about Anthony Kiedis' feelings of isolation in Los Angeles, grief over the death of guitarist Hillel Slovak from a heroin overdose, and the period when his sobriety was distancing him from his bandmates.
-
----
-
-### 3 — Context-Based Answering
-**Q:** *Why did Anthony Kiedis write 'Under the Bridge'? What emotions inspired it?*
-
-**A:** Kiedis wrote the song as a poem while driving home from rehearsal. He felt isolated from John Frusciante and Flea, who were bonding without him, and found that Los Angeles was his only reliable companion during that sober period.
-
----
-
-### 4 — Context-Based Answering
-**Q:** *Who is Dani, the character mentioned in RHCP songs?*
-
-**A:** Dani is a recurring fictional character in RHCP songs, representing every girl Kiedis has ever been with. She appears in "By the Way" (2002), "Californication" (1999), and "Dani California" (2006).
-
----
-
-### 5 — Context-Based Answering
-**Q:** *Who is Hillel Slovak and what happened to him?*
-
-**A:** Hillel Slovak was a founding member and guitarist of the Red Hot Chili Peppers. He died of a heroin overdose, an event that profoundly affected Anthony Kiedis and directly inspired the song "Under the Bridge."
-
----
-
-### 6 — Out-of-Scope Question
-**Q:** *What is the capital of France and who is the French president?*
-
-**A:** I don't have enough information in my knowledge base to answer that.
 
 > Demonstrates that the system does not hallucinate answers outside its knowledge base.
 
----
-
-### 7 — Multi-Query Performance
-**Q:** *Who are the members of the Red Hot Chili Peppers?*
-
-**A:** The Red Hot Chili Peppers' classic lineup includes Anthony Kiedis (vocals), Flea (bass), John Frusciante (guitar), and Chad Smith (drums).
-
----
 
 ## Reflection
 
