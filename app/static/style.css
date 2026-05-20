@@ -1,7 +1,9 @@
 /* =============================================
    Base & Reset
    ============================================= */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -32,9 +34,19 @@ body {
 }
 
 .hero-logo {
-    font-size: 52px;
     line-height: 1;
     margin-bottom: 12px;
+}
+
+.hero-logo img {
+    width: 250px;
+    height: 250px;
+    object-fit: contain;
+    transition: transform 0.8s ease;
+}
+
+.hero-logo img:hover {
+    transform: rotateY(720deg);
 }
 
 .hero h1 {
@@ -131,7 +143,9 @@ button:disabled {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* =============================================
@@ -145,6 +159,50 @@ button:disabled {
     padding: 16px 20px;
     color: #ff8080;
     font-size: 14px;
+}
+
+/* =============================================
+   History card
+   ============================================= */
+.history-card {
+    margin-top: 24px;
+    background: #161616;
+    border: 1px solid #252525;
+    border-radius: 16px;
+    padding: 18px 24px;
+    animation: fadeIn 0.3s ease;
+}
+
+.history-card h2 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #555;
+    margin-bottom: 12px;
+}
+
+.history-item {
+    border-left: 2px solid #2a2a2a;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    opacity: 0.65;
+}
+
+.history-item:last-child {
+    margin-bottom: 0;
+}
+
+.history-q {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.history-a {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
 }
 
 /* =============================================
@@ -218,6 +276,88 @@ button:disabled {
 }
 
 /* =============================================
+   Upload box
+   ============================================= */
+.upload-box {
+    margin-top: 40px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 22px 24px;
+}
+
+.upload-box h2 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #888;
+    margin-bottom: 6px;
+}
+
+.upload-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+
+.file-label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #141414;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #aaa;
+    min-width: 0;
+}
+
+.file-label input[type="file"] {
+    display: none;
+}
+
+.file-label:hover {
+    border-color: #cc0000;
+}
+
+#fileName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.upload-row button {
+    margin-top: 0;
+    width: auto;
+    padding: 10px 24px;
+    flex-shrink: 0;
+}
+
+.upload-success {
+    margin-top: 12px;
+    background: #0a2a0a;
+    border: 1px solid #1a5c1a;
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #6fcf6f;
+    font-size: 14px;
+}
+
+code {
+    background: #222;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #ff8080;
+}
+
+/* =============================================
    Utility
    ============================================= */
 .hidden {
@@ -225,6 +365,13 @@ button:disabled {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

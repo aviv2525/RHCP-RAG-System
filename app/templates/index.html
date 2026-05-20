@@ -12,7 +12,9 @@
     <main class="container">
 
         <header class="hero">
-            <div class="hero-logo">🌶️</div>
+            <div class="hero-logo">
+                <img src="/static/rhcp-hand-tufted-asterisk-rug-red.png" alt="RHCP Logo" />
+            </div>
             <h1>RHCP Knowledge Assistant</h1>
             <p class="hero-sub">Ask anything about the Red Hot Chili Peppers — history, albums, members, songs.</p>
         </header>
@@ -35,6 +37,11 @@
             <span id="errorText"></span>
         </div>
 
+        <section id="historyCard" class="history-card hidden">
+            <h2>Conversation</h2>
+            <div id="historyList"></div>
+        </section>
+
         <section id="answerCard" class="answer-card hidden">
             <h2>Answer</h2>
             <p id="answerText"></p>
@@ -44,6 +51,24 @@
             <h2>Retrieved Sources</h2>
             <p class="sources-note">These are the knowledge-base excerpts used to generate the answer.</p>
             <div id="sourcesList"></div>
+        </section>
+
+        <section class="upload-box">
+            <h2>Add to Knowledge Base</h2>
+            <p class="sources-note">Upload a <code>.txt</code> or <code>.md</code> file — the index will rebuild automatically.</p>
+            <div class="upload-row">
+                <label class="file-label">
+                    <input type="file" id="fileInput" accept=".txt,.md" />
+                    <span id="fileName">No file chosen</span>
+                </label>
+                <button id="uploadBtn" onclick="uploadFile()">Upload</button>
+            </div>
+            <div id="uploadLoading" class="loading hidden">
+                <div class="spinner"></div>
+                <span>Rebuilding knowledge base…</span>
+            </div>
+            <div id="uploadSuccess" class="upload-success hidden"></div>
+            <div id="uploadError" class="error-card hidden"><span id="uploadErrorText"></span></div>
         </section>
 
     </main>

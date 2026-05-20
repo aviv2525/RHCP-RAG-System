@@ -1,6 +1,8 @@
 import os
 import sys
 import time
+import json
+import hashlib
 import faiss
 import numpy as np
 import nltk
@@ -17,7 +19,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ==========================================================
-# HARD-CODED TOKENS
+# API KEYS
 # ==========================================================
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -34,21 +36,13 @@ DATA_FOLDER = BASE_DIR / "data"
 VECTOR_STORE_DIR = BASE_DIR / "vector_store"
 FAISS_INDEX_PATH = VECTOR_STORE_DIR / "faiss.index"
 CHUNKS_PATH = VECTOR_STORE_DIR / "chunks.npy"
+INDEXED_FILES_PATH = VECTOR_STORE_DIR / "indexed_files.json"
 
-# Hugging Face cloud embedding model
 HF_EMBEDDING_MODEL = "ibm-granite/granite-embedding-97m-multilingual-r2"
-
-# You can also try:
-# HF_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-
-# Gemini cloud LLM
 GEMINI_MODEL = "gemini-2.5-flash"
 
-TOP_K = 3
+TOP_K = 6
 SIMILARITY_THRESHOLD = 0.40
-
-# Start with 1 to avoid connection problems.
-# Later you can try 4 or 8.
 BATCH_SIZE = 1
 
 
@@ -77,11 +71,28 @@ def setup_nltk():
 # LOAD DOCUMENTS
 # ==========================================================
 
-def load_documents(folder=DATA_FOLDER):
-    """
-    Load .txt files from the data folder and split them into text chunks.
-    """
+def _file_hash(file_path):
+    h = hashlib.md5()
+    with open(file_path, "rb") as f:
+        h.update(f.read())
+    return h.hexdigest()
 
+
+def load_indexed_files():
+    if not INDEXED_FILES_PATH.exists():
+        return {}
+    with open(INDEXED_FILES_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_indexed_files(indexed_files):
+    VECTOR_STORE_DIR.mkdir(exist_ok=True)
+    with open(INDEXED_FILES_PATH, "w", encoding="utf-8") as f:
+        json.dump(indexed_files, f, indent=2)
+
+
+def load_documents(folder=DATA_FOLDER):
+    """Load all .txt/.md files and return chunks (used for full rebuild)."""
     if not os.path.exists(folder):
         raise FileNotFoundError(
             f"Folder '{folder}' does not exist. Create it and put .txt files inside."
@@ -90,17 +101,12 @@ def load_documents(folder=DATA_FOLDER):
     chunks = []
 
     for file_name in os.listdir(folder):
-        if file_name.endswith(".txt"):
+        if file_name.endswith((".txt", ".md")):
             file_path = os.path.join(folder, file_name)
-
             with open(file_path, "r", encoding="utf-8") as file:
                 text = file.read()
-
-            sentences = sent_tokenize(text)
-
-            for sentence in sentences:
+            for sentence in sent_tokenize(text):
                 sentence = sentence.strip()
-
                 if sentence:
                     chunks.append(sentence)
 
@@ -111,6 +117,41 @@ def load_documents(folder=DATA_FOLDER):
 
     print(f"Loaded {len(chunks)} text chunks.")
     return chunks
+
+
+def load_new_documents(folder=DATA_FOLDER, indexed_files=None):
+    """Return chunks only from files not yet indexed (by MD5 hash)."""
+    if indexed_files is None:
+        indexed_files = {}
+
+    if not os.path.exists(folder):
+        raise FileNotFoundError(
+            f"Folder '{folder}' does not exist. Create it and put .txt files inside."
+        )
+
+    new_chunks = []
+    new_file_hashes = {}
+
+    for file_name in os.listdir(folder):
+        if not file_name.endswith((".txt", ".md")):
+            continue
+        file_path = os.path.join(folder, file_name)
+        file_hash = _file_hash(file_path)
+
+        if indexed_files.get(file_name) == file_hash:
+            print(f"Skipping '{file_name}' (already indexed).")
+            continue
+
+        print(f"Indexing new/modified file: '{file_name}'")
+        with open(file_path, "r", encoding="utf-8") as f:
+            text = f.read()
+        for sentence in sent_tokenize(text):
+            sentence = sentence.strip()
+            if sentence:
+                new_chunks.append(sentence)
+        new_file_hashes[file_name] = file_hash
+
+    return new_chunks, new_file_hashes
 
 
 # ==========================================================
@@ -205,10 +246,6 @@ def hf_feature_extraction_with_retries(inputs, expected_count, max_retries=5):
 
 
 def embed_texts_with_huggingface(texts, batch_size=BATCH_SIZE):
-    """
-    Creates document embeddings using Hugging Face cloud inference.
-    """
-
     all_embeddings = []
     total_batches = (len(texts) + batch_size - 1) // batch_size
 
@@ -233,10 +270,6 @@ def embed_texts_with_huggingface(texts, batch_size=BATCH_SIZE):
 
 
 def embed_query_with_huggingface(query):
-    """
-    Creates one query embedding using Hugging Face cloud inference.
-    """
-
     embedding = hf_feature_extraction_with_retries(
         inputs=query,
         expected_count=1
@@ -290,7 +323,8 @@ def retrieve(query, index, chunks, k=TOP_K, threshold=SIMILARITY_THRESHOLD):
         if idx == -1:
             continue
         if float(score) < threshold:
-            print(f"  Skipping chunk {idx} — score {score:.3f} below threshold {threshold}")
+            print(
+                f"  Skipping chunk {idx} — score {score:.3f} below threshold {threshold}")
             continue
         retrieved_chunks.append(chunks[idx])
 
@@ -301,23 +335,37 @@ def retrieve(query, index, chunks, k=TOP_K, threshold=SIMILARITY_THRESHOLD):
 # GEMINI LLM
 # ==========================================================
 
-def ask_gemini(context, question):
+def ask_gemini(context, question, history=None):
     """
     Gemini is the LLM.
     Hugging Face is only used for embeddings.
     """
+    history_block = ""
+    if history:
+        lines = []
+        for turn in history:
+            lines.append(f"User: {turn['question']}")
+            lines.append(f"Assistant: {turn['answer']}")
+        history_block = "Previous conversation:\n" + "\n".join(lines) + "\n\n"
+
     prompt = f"""You are an expert assistant on the Red Hot Chili Peppers (RHCP).
 Answer the user's question based ONLY on the numbered context excerpts below, retrieved from the RHCP knowledge base.
+
+The knowledge base was built from two sources:
+- Wikipedia articles about the band and its members.
+- Genius annotations: song lyrics and their meanings, written by music analysts.
 
 Rules:
 - Answer using ONLY information explicitly stated in the context excerpts.
 - Do not invent facts, names, dates, albums, or events not present in the context.
-- If the context does not contain sufficient information to answer, respond with exactly:
-  "I don't have enough information in my knowledge base to answer that."
+- If the context contains partial information, answer what you can and clearly note what is missing.
+- Only respond with "I don't have enough information in my knowledge base to answer that." if the context contains NO relevant information at all.
 - Do not speculate, infer beyond what is stated, or draw on outside knowledge.
 - Be concise and accurate.
+- Use the previous conversation for context (e.g. resolving pronouns like "he", "they", "it").
+- Always reply in the same language the user asked in.
 
-Context excerpts:
+{history_block}Context excerpts:
 {context}
 
 Question: {question}
@@ -373,22 +421,52 @@ def _init():
         return
     setup_nltk()
     _index, _chunks = load_vector_store()
-    if _index is not None:
+    indexed_files = load_indexed_files()
+
+    new_chunks, new_file_hashes = load_new_documents(
+        DATA_FOLDER, indexed_files)
+
+    if not new_chunks:
+        if _index is None:
+            raise ValueError("No files found to index.")
+        print("All files already indexed. Nothing to update.")
         return
-    print("Building vector store from scratch...")
-    chunks = load_documents(DATA_FOLDER)
-    embeddings = embed_texts_with_huggingface(chunks)
-    index = create_faiss_index(embeddings)
-    save_vector_store(index, chunks)
-    _index = index
-    _chunks = chunks
+
+    print(f"Embedding {len(new_chunks)} new chunks...")
+    new_embeddings = embed_texts_with_huggingface(new_chunks)
+
+    if _index is None:
+        _index = create_faiss_index(new_embeddings)
+        _chunks = new_chunks
+    else:
+        faiss.normalize_L2(new_embeddings)
+        _index.add(new_embeddings)
+        _chunks = _chunks + new_chunks
+
+    indexed_files.update(new_file_hashes)
+    save_vector_store(_index, _chunks)
+    save_indexed_files(indexed_files)
 
 
 # ==========================================================
 # PUBLIC API (called by RHCP_app.py)
 # ==========================================================
 
-def ask_question(question):
+def rebuild_vector_store():
+    """Delete cached index and rebuild from all files in data/."""
+    global _index, _chunks
+    if FAISS_INDEX_PATH.exists():
+        FAISS_INDEX_PATH.unlink()
+    if CHUNKS_PATH.exists():
+        CHUNKS_PATH.unlink()
+    if INDEXED_FILES_PATH.exists():
+        INDEXED_FILES_PATH.unlink()
+    _index = None
+    _chunks = None
+    _init()
+
+
+def ask_question(question, history=None):
     question = question.strip()
     if not question:
         return {"answer": "Please enter a question.", "sources": []}
@@ -410,7 +488,7 @@ def ask_question(question):
     numbered_context = "\n\n".join(
         f"[{i+1}] {chunk}" for i, chunk in enumerate(top_chunks)
     )
-    answer = ask_gemini(numbered_context, question)
+    answer = ask_gemini(numbered_context, question, history=history)
     return {"answer": answer, "sources": top_chunks}
 
 
