@@ -2,8 +2,10 @@
 
 A Retrieval-Augmented Generation (RAG) web application for answering questions about the **Red Hot Chili Peppers**, built with Flask, FAISS, Hugging Face embeddings, and Google Gemini.
 
+**Video Demo :**
+https://www.youtube.com/watch?v=PckAgAw1dkw
 ---
-![alt text](image.png)
+![alt text](app/static/image.png)
 
 ## Architecture
 
@@ -102,7 +104,7 @@ The index is built automatically on first run. Subsequent runs load the saved FA
 
 ## Example Queries & Outputs
 
-![alt text](5-questions.png)
+![alt text](app/static/5-questions.png)
 
 
 > Demonstrates that the system does not hallucinate answers outside its knowledge base.
